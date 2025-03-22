@@ -11,76 +11,57 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import pickle
 
-#load teh csv data to a pandas dataframe
-df = pd.read_csv("D:\RealDownload\CustomerChurn\Customer-Churn-Prediction\WA_Fn-UseC_-Telco-Customer-Churn.csv")
+df = pd.read_csv("D:\RealDownload\CustomerChurn\Customer-Churn-Prediction\WA_Fn-UseC_-Telco-Customer-Churn.csv")        #load the csv data to a pandas dataframe
+#df.shape                                                                             #returns the dimensions of the dataset as a tuple (number of rows, number of columns)
 
-df.shape
+#df.head()                                                                            #displays the first five rows of the dataset by default
 
-df.head()
+pd.set_option("display.max_columns", None)                                            #ensures that all columns in the dataset are displayed 
 
-pd.set_option("display.max_columns", None)
+#df.info()                                                                            #provides a concise summary of the dataset
 
-df.head(2)
+df = df.drop(columns=["customerID"])                                                  #dropping customerID column as this is not required for modelling
 
-df.info()
+#df.head()
 
-# dropping customerID column as this is not required for modelling
-df = df.drop(columns=["customerID"])
+#df.columns                                                                            #returns the list of column names in the dataset
 
-df.head(2)
-
-df.columns
-
-print(df["gender"].unique())
-
-print(df["SeniorCitizen"].unique())
-
-# printing the unique values in all the columns
-
-numerical_features_list = ["tenure", "MonthlyCharges", "TotalCharges"]
+numerical_features_list = ["tenure", "MonthlyCharges", "TotalCharges"]                 #printing the unique values in all the columns
 
 for col in df.columns:
   if col not in numerical_features_list:
     print(col, df[col].unique())
     print("-"*50)
 
-print(df.isnull().sum())
+print(df.isnull().sum())                                                               #returns how many null values each column has
 
-#df["TotalCharges"] = df["TotalCharges"].astype(float)
-
-df[df["TotalCharges"]==" "]
-
-len(df[df["TotalCharges"]==" "])
-
-df["TotalCharges"] = df["TotalCharges"].replace({" ": "0.0"})
+df["TotalCharges"] = df["TotalCharges"].replace({" ": "0.0"})                          #converting null spaces to 0.0
 
 df["TotalCharges"] = df["TotalCharges"].astype(float)
 
-df.info()
+#df.info()
 
-# checking the class distribution of target column
-print(df["Churn"].value_counts())
+print(df["Churn"].value_counts())                                                      #counts and displays the occurrences of each unique value in the "Churn" column
 
-"""**Insights:**
+"""
+Insights:
 1. Customer ID removed as it is not required for modelling
 2. No mmissing values in the dataset
 3. Missing values in the TotalCharges column were replaced with 0
 4. Class imbalance identified in the target
-
-**3. Exploratory Data Analysis (EDA)**
 """
 
-df.shape
+#df.shape
 
-df.columns
+#df.columns
 
-df.head(2)
+#df.head(2)
 
-df.describe()
+#df.describe()
 
 """**Numerical Features - Analysis**
 
-Understand the distribution of teh numerical features
+Understand the distribution of the numerical features
 """
 
 def plot_histogram(df, column_name):
@@ -88,26 +69,21 @@ def plot_histogram(df, column_name):
   plt.figure(figsize=(5, 3))
   sns.histplot(df[column_name], kde=True)
   plt.title(f"Distribution of {column_name}")
-
-  # calculate the mean and median values for the columns
+                              # calculate the mean and median values for the columns
   col_mean = df[column_name].mean()
   col_median = df[column_name].median()
-
-  # add vertical lines for mean and median
+                              # add vertical lines for mean and median
   plt.axvline(col_mean, color="red", linestyle="--", label="Mean")
   plt.axvline(col_median, color="green", linestyle="-", label="Median")
 
   plt.legend()
-
   plt.show()
 
 plot_histogram(df, "tenure")
-
 plot_histogram(df, "MonthlyCharges")
-
 plot_histogram(df, "TotalCharges")
 
-"""**Box plot for numerical features**"""
+"""Box plot for numerical features"""
 
 def plot_boxplot(df, column_name):
 
@@ -118,12 +94,10 @@ def plot_boxplot(df, column_name):
   plt.show
 
 plot_boxplot(df, "tenure")
-
 plot_boxplot(df, "MonthlyCharges")
-
 plot_boxplot(df, "TotalCharges")
 
-"""**Correlation Heatmap for numerical columns**"""
+"""Correlation Heatmap for numerical columns"""
 
 # correlation matrix - heatmap
 plt.figure(figsize=(8, 4))
@@ -131,13 +105,9 @@ sns.heatmap(df[["tenure", "MonthlyCharges", "TotalCharges"]].corr(), annot=True,
 plt.title("Correlation Heatmap")
 plt.show()
 
-"""Categorical features - Analysis"""
+"""Categorical features - Analysis
 
-df.columns
-
-df.info()
-
-"""Countplot for categorical columns"""
+Countplot for categorical columns"""
 
 object_cols = df.select_dtypes(include="object").columns.to_list()
 
@@ -149,15 +119,10 @@ for col in object_cols:
   plt.title(f"Count Plot of {col}")
   plt.show()
 
-"""**4. Data Preprocessing**"""
-
-df.head(3)
-
-"""Label encoding of target column"""
+"""4. Data Preprocessing
+Label encoding of target column"""
 
 df["Churn"] = df["Churn"].replace({"Yes": 1, "No": 0})
-
-df.head(3)
 
 print(df["Churn"].value_counts())
 
@@ -165,7 +130,6 @@ print(df["Churn"].value_counts())
 
 # identifying columns with object data type
 object_columns = df.select_dtypes(include="object").columns
-
 print(object_columns)
 
 # initialize a dictionary to save the encoders
