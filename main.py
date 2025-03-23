@@ -12,6 +12,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 import pickle
 
 df = pd.read_csv("D:\RealDownload\CustomerChurn\Customer-Churn-Prediction\WA_Fn-UseC_-Telco-Customer-Churn.csv")        #load the csv data to a pandas dataframe
+
 #df.shape                                                                             #returns the dimensions of the dataset as a tuple (number of rows, number of columns)
 
 #df.head()                                                                            #displays the first five rows of the dataset by default
@@ -69,10 +70,10 @@ def plot_histogram(df, column_name):
   plt.figure(figsize=(5, 3))
   sns.histplot(df[column_name], kde=True)
   plt.title(f"Distribution of {column_name}")
-                              # calculate the mean and median values for the columns
+  # calculate the mean and median values for the columns
   col_mean = df[column_name].mean()
   col_median = df[column_name].median()
-                              # add vertical lines for mean and median
+  # adding vertical lines for mean and median
   plt.axvline(col_mean, color="red", linestyle="--", label="Mean")
   plt.axvline(col_median, color="green", linestyle="-", label="Median")
 
@@ -109,7 +110,7 @@ plt.show()
 
 Countplot for categorical columns"""
 
-object_cols = df.select_dtypes(include="object").columns.to_list()
+object_cols = df.select_dtypes(include="object").columns.to_list()                          #all the non-numerical columns are grouped together and printed
 
 object_cols = ["SeniorCitizen"] + object_cols
 
@@ -122,46 +123,38 @@ for col in object_cols:
 """4. Data Preprocessing
 Label encoding of target column"""
 
-df["Churn"] = df["Churn"].replace({"Yes": 1, "No": 0})
+df["Churn"] = df["Churn"].replace({"Yes": 1, "No": 0})                                     # Churn column is changed from object type to integer
 
 print(df["Churn"].value_counts())
 
 """Label encoding of categorical fetaures"""
 
-# identifying columns with object data type
-object_columns = df.select_dtypes(include="object").columns
+object_columns = df.select_dtypes(include="object").columns                                # identifying columns with object data type
 print(object_columns)
 
-# initialize a dictionary to save the encoders
-encoders = {}
+encoders = {}                                                                              # initialize a dictionary to save the encoders
 
-# apply label encoding and store the encoders
-for column in object_columns:
+for column in object_columns:                                                              # apply label encoding and store the encoders
   label_encoder = LabelEncoder()
   df[column] = label_encoder.fit_transform(df[column])
   encoders[column] = label_encoder
 
-
-# save the encoders to a pickle file
-with open("encoders.pkl", "wb") as f:
+with open("encoders.pkl", "wb") as f:                                                      # save the encoders to a pickle file
   pickle.dump(encoders, f)
 
 encoders
 
-df.head()
+#df.head()
 
-"""**Traianing and test data split**"""
+"""Traianing and test data split"""
 
-# splitting the features and target
-X = df.drop(columns=["Churn"])
+X = df.drop(columns=["Churn"])                                                             # splitting the features and target
 y = df["Churn"]
 
-# split training and test data
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)               # split training and test data
 
-print(y_train.shape)
-
-print(y_train.value_counts())
+#print(y_train.shape)
+#print(y_train.value_counts())
 
 """Synthetic Minority Oversampling TEchnique (SMOTE)"""
 
@@ -173,7 +166,8 @@ print(y_train_smote.shape)
 
 print(y_train_smote.value_counts())
 
-"""**5. Model Training**
+"""
+5. Model Training
 
 Training with default hyperparameters
 """
@@ -218,11 +212,10 @@ print("Classification Report:\n", classification_report(y_test, y_test_pred))
 # save the trained model as a pickle file
 model_data = {"model": rfc, "features_names": X.columns.tolist()}
 
-
 with open("customer_churn_model.pkl", "wb") as f:
   pickle.dump(model_data, f)
 
-"""**7. Load the saved  model and  build a Predictive System**"""
+"""7. Load the saved  model and  build a Predictive System"""
 
 # load teh saved model and the feature names
 
